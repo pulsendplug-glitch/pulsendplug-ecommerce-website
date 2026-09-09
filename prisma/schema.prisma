@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  category    String
+  shortDesc   String
+  description String
+  price       Float?
+  imageUrl    String?
+  images      String[] @default([])
+  featured    Boolean  @default(false)
+  inStock     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BusinessRegistration {
+  id           String   @id @default(cuid())
+  businessName String
+  regNumber    String
+  email        String
+  phone        String?
+  discountCode String   @unique
+  approved     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model QuoteRequest {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  business        String?
+  message         String
+  isUsBased       Boolean  @default(false)
+  discountApplied Boolean  @default(false)
+  discountCode    String?
+  discountPercent Int      @default(0)
+  type            String   @default("retail")
+  createdAt       DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  business  String?
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now())
+}

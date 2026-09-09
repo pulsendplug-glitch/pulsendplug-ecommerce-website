@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-pulse-black dark:bg-pulse-black dark:text-white transition-colors duration-300;
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, .font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: rgba(225, 29, 46, 0.35);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-pulse-red/40 rounded-full;
+}
+
+/* Cursor glow layer */
+#cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 500px;
+  height: 500px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 40;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(225, 29, 46, 0.16) 0%, rgba(225, 29, 46, 0.06) 35%, transparent 70%);
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+
+.dark #cursor-glow {
+  background: radial-gradient(circle, rgba(225, 29, 46, 0.28) 0%, rgba(225, 29, 46, 0.1) 35%, transparent 70%);
+}
+
+@media (pointer: coarse) {
+  #cursor-glow {
+    display: none;
+  }
+}
+
+.section-pad {
+  @apply px-6 md:px-12 lg:px-20;
+}
+
+.container-max {
+  @apply max-w-7xl mx-auto;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-pulse-red px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition-all hover:bg-pulse-redDark hover:shadow-glow;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-current px-7 py-3.5 text-sm font-semibold uppercase tracking-wide transition-all hover:bg-pulse-red hover:border-pulse-red hover:text-white;
+}
+
+.card {
+  @apply rounded-2xl border border-black/5 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-pulse-charcoal;
+}
