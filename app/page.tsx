@@ -76,13 +76,15 @@ export default async function HomePage() {
           </div>
           <div className="relative animate-fadeUp">
             <div className="relative aspect-square overflow-hidden rounded-3xl shadow-2xl md:aspect-[4/5]">
-              <Image
-                src="https://images.unsplash.com/photo-1600334129128-685c5582fd35?q=80&w=1200&auto=format&fit=crop"
-                alt="Premium recovery studio equipment"
-                fill
-                priority
-                className="object-cover"
-              />
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="h-full w-full object-cover"
+              >
+                <source src="/videos/hero-massage-chair.mp4" type="video/mp4" />
+              </video>
             </div>
             <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-white p-5 shadow-xl dark:bg-pulse-steel md:block">
               <p className="font-display text-2xl font-bold text-pulse-red">250+</p>

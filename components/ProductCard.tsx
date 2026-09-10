@@ -34,6 +34,14 @@ export function ProductCard({ product }: { product: Product }) {
             Out of Stock
           </span>
         )}
+        {product.imageUrl && (
+          <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-semibold uppercase text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3">
+              <ellipse cx="12" cy="12" rx="9" ry="4.5" />
+            </svg>
+            360
+          </span>
+        )}
       </div>
       <div className="p-5">
         <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-pulse-red">{product.category}</p>

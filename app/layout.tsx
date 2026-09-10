@@ -5,8 +5,8 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { CursorGlow } from '@/components/CursorGlow';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { CookieConsent } from '@/components/CookieConsent';
-import { HeartbeatIntro } from '@/components/HeartbeatIntro';
+import { SiteGate } from '@/components/SiteGate';
+import { HelpWidget } from '@/components/HelpWidget';
 
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', weight: ['500', '700'] });
 const body = Inter({ subsets: ['latin'], variable: '--font-body' });
@@ -22,12 +22,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${display.variable} ${body.variable} font-body`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <HeartbeatIntro />
-          <CursorGlow />
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <CookieConsent />
+          <SiteGate>
+            <CursorGlow />
+            <Header />
+            <main>{children}</main>
+            <Footer />
+            <HelpWidget />
+          </SiteGate>
         </ThemeProvider>
       </body>
     </html>

@@ -52,6 +52,7 @@ model QuoteRequest {
 model Subscriber {
   id        String   @id @default(cuid())
   email     String   @unique
+  phone     String?
   createdAt DateTime @default(now())
 }
 

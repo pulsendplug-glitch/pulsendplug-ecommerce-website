@@ -2,11 +2,12 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
-type Product = { id: string; name: string; slug: string; category: string; shortDesc: string; description: string; price: number | null; imageUrl: string | null; featured: boolean; inStock: boolean; };
+type Product = { id: string; name: string; slug: string; category: string; shortDesc: string; description: string; price: number | null; imageUrl: string | null; images: string[]; featured: boolean; inStock: boolean; };
 type Business = { id: string; businessName: string; regNumber: string; email: string; phone?: string; discountCode: string; approved: boolean; createdAt: string; };
 type Quote = { id: string; name: string; email: string; business?: string; message: string; type: string; discountPercent: number; isUsBased: boolean; createdAt: string; };
+type Subscriber = { id: string; email: string; phone?: string; createdAt: string };
 
-const emptyForm = { name: '', category: 'Recovery Chairs', shortDesc: '', description: '', price: '', imageUrl: '', featured: false, inStock: true };
+const emptyForm = { name: '', category: 'Recovery Chairs', shortDesc: '', description: '', price: '', imageUrl: '', images: [] as string[], featured: false, inStock: true };
 const categories = ['Recovery Chairs', 'Saunas', 'Cold Plunge', 'Pilates & Studio', 'Clinical & Rehab', 'Recovery Tools'];
 
 export function AdminPanel() {
@@ -16,11 +17,12 @@ export function AdminPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [subscribers, setSubscribers] = useState<{ id: string; email: string; createdAt: string }[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [form, setForm] = useState<typeof emptyForm & { id?: string }>(emptyForm);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
     const saved = sessionStorage.getItem('pp_admin_key');
@@ -49,6 +51,11 @@ export function AdminPanel() {
 
   function tryLogin(e: React.FormEvent) {
     e.preventDefault();
+    if (!key.trim()) {
+      setLoginError('Please enter a password.');
+      return;
+    }
+    setLoginError('');
     sessionStorage.setItem('pp_admin_key', key);
     setAuthed(true);
   }
@@ -68,6 +75,31 @@ export function AdminPanel() {
     } finally {
       setUploading(false);
     }
+  }
+
+  async function handleAngleUpload(files: FileList) {
+    setUploading(true);
+    setError('');
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/upload', { method: 'POST', headers: { 'x-admin-key': key }, body: fd });
+        if (!res.ok) throw new Error('Upload failed. Check that Blob storage is connected.');
+        const data = await res.json();
+        uploaded.push(data.url);
+      }
+      setForm((f) => ({ ...f, images: [...f.images, ...uploaded] }));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeAngleImage(url: string) {
+    setForm((f) => ({ ...f, images: f.images.filter((i) => i !== url) }));
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -111,6 +143,7 @@ export function AdminPanel() {
       description: p.description,
       price: p.price?.toString() ?? '',
       imageUrl: p.imageUrl ?? '',
+      images: p.images ?? [],
       featured: p.featured,
       inStock: p.inStock,
     });
@@ -142,6 +175,7 @@ export function AdminPanel() {
             className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
           />
           <button type="submit" className="btn-primary w-full">Enter</button>
+          {loginError && <p className="text-sm text-red-600">{loginError}</p>}
           <p className="text-xs text-black/50 dark:text-white/50">
             This checks against the ADMIN_PASSWORD environment variable set in Vercel when you save or delete anything.
           </p>
@@ -183,7 +217,10 @@ export function AdminPanel() {
             <div className="divide-y divide-black/5 dark:divide-white/10">
               {subscribers.map((s) => (
                 <div key={s.id} className="flex items-center justify-between py-3">
-                  <span className="font-medium">{s.email}</span>
+                  <div>
+                    <span className="font-medium">{s.email}</span>
+                    {s.phone && <span className="ml-3 text-sm text-black/50 dark:text-white/50">{s.phone}</span>}
+                  </div>
                   <span className="text-sm text-black/50">{new Date(s.createdAt).toLocaleDateString()}</span>
                 </div>
               ))}
@@ -276,6 +313,35 @@ export function AdminPanel() {
                 )}
                 <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="w-full text-sm" />
                 {uploading && <p className="mt-1 text-xs text-black/50">Uploading</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium">360 View Photos (optional)</label>
+                <p className="mb-2 text-xs text-black/50 dark:text-white/50">
+                  Upload several photos of the product taken from different angles, turning it a little between each shot. Customers can then drag to spin through them on the product page. Skip this if you only have the one main photo.
+                </p>
+                {form.images.length > 0 && (
+                  <div className="mb-3 grid grid-cols-4 gap-2">
+                    {form.images.map((url) => (
+                      <div key={url} className="group relative aspect-square overflow-hidden rounded-lg bg-pulse-fog dark:bg-pulse-steel">
+                        <Image src={url} alt="Angle photo" fill className="object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeAngleImage(url)}
+                          className="absolute inset-0 flex items-center justify-center bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => e.target.files && e.target.files.length > 0 && handleAngleUpload(e.target.files)}
+                  className="w-full text-sm"
+                />
               </div>
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-2 text-sm">

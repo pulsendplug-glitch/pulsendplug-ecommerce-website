@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { RetailQuoteForm } from '@/components/RetailQuoteForm';
+import { Product360Button } from '@/components/Product360Viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,14 +25,19 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </Link>
 
         <div className="grid gap-12 md:grid-cols-2">
-          <div className="relative aspect-square overflow-hidden rounded-3xl bg-pulse-fog dark:bg-pulse-steel">
-            {product.imageUrl ? (
-              <Image src={product.imageUrl} alt={product.name} fill className="object-cover" priority />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-black/30 dark:text-white/30">
-                No image yet
-              </div>
-            )}
+          <div>
+            <div className="relative aspect-square overflow-hidden rounded-3xl bg-pulse-fog dark:bg-pulse-steel">
+              {product.imageUrl ? (
+                <Image src={product.imageUrl} alt={product.name} fill className="object-cover" priority />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-black/30 dark:text-white/30">
+                  No image yet
+                </div>
+              )}
+            </div>
+            <div className="mt-4">
+              <Product360Button imageUrl={product.imageUrl} images={product.images} productName={product.name} />
+            </div>
           </div>
 
           <div>
