@@ -54,7 +54,7 @@ export default async function HomePage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-black/5 bg-pulse-fog dark:border-white/10 dark:bg-pulse-charcoal">
-        <div className="pointer-events-none absolute -right-40 -top-40 h-96 w-96 rounded-full bg-pulse-red/20 blur-3xl" />
+        <div className="fine-pointer-glow pointer-events-none absolute -right-40 -top-40 h-96 w-96 rounded-full bg-pulse-red/20 blur-3xl" />
         <div className="container-max section-pad grid items-center gap-12 py-24 md:grid-cols-2 md:py-32">
           <div className="animate-fadeUp">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">

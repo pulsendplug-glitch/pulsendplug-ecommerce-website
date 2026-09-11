@@ -14,8 +14,8 @@ export default async function BusinessPage() {
     <>
       {/* Hero with countdown */}
       <section className="relative overflow-hidden bg-pulse-black py-20 text-white">
-        <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-pulse-red/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-pulse-red/10 blur-3xl" />
+        <div className="fine-pointer-glow pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-pulse-red/20 blur-3xl" />
+        <div className="fine-pointer-glow pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-pulse-red/10 blur-3xl" />
         <div className="container-max section-pad relative text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-pulse-red">
             Limited Time Business Deal
