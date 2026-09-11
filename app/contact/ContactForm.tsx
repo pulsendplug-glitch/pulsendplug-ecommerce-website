@@ -70,7 +70,7 @@ export function ContactForm() {
         {status === 'sending' ? 'Sending…' : 'Send Message'}
       </button>
       {status === 'error' && (
-        <p className="text-sm text-red-600">Something went wrong — please try again.</p>
+        <p className="text-sm text-blue-600">Something went wrong — please try again.</p>
       )}
     </form>
   );

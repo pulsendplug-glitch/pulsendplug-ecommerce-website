@@ -105,7 +105,7 @@ export function BusinessPageClient({ products }: { products: Product[] }) {
                     className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15" />
                 </div>
                 {regStatus === 'error' && (
-                  <p className="text-sm text-red-600">Something went wrong, please try again.</p>
+                  <p className="text-sm text-blue-600">Something went wrong, please try again.</p>
                 )}
                 <button type="submit" disabled={regStatus === 'sending'} className="btn-primary w-full">
                   {regStatus === 'sending' ? 'Registering…' : 'Register & Unlock 20% Off'}
@@ -215,7 +215,7 @@ export function BusinessPageClient({ products }: { products: Product[] }) {
                             className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15" />
                         </div>
                         {quoteStatus === 'error' && (
-                          <p className="text-sm text-red-600">Something went wrong, please try again.</p>
+                          <p className="text-sm text-blue-600">Something went wrong, please try again.</p>
                         )}
                         <button type="submit" disabled={quoteStatus === 'sending'} className="btn-primary w-full">
                           {quoteStatus === 'sending' ? 'Sending…' : 'Submit Business Quote'}

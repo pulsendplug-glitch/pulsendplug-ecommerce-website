@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <p className="mb-8 text-black/70 dark:text-white/70">{product.description}</p>
 
             <div className="mb-8 flex items-center gap-3">
-              <span className={`h-2.5 w-2.5 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className={`h-2.5 w-2.5 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-blue-500'}`} />
               <span className="text-sm font-medium">{product.inStock ? 'In Stock' : 'Out of Stock'}</span>
             </div>
 

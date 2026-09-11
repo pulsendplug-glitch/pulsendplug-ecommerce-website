@@ -155,7 +155,7 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 text-white outline-none focus:border-pulse-red"
             />
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className="text-sm text-blue-400">{error}</p>}
             <button type="submit" disabled={submitting} className="btn-primary w-full">
               {submitting ? 'Submitting' : 'Continue to Site'}
             </button>
@@ -186,7 +186,7 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
                   : 'M0,50 L70,50 Q80,50 85,38 Q90,26 95,38 Q100,50 110,50 L150,50 L162,50 L170,20 L178,4 L186,55 L192,88 L200,50 L300,50 L370,50 Q380,50 385,38 Q390,26 395,38 Q400,50 410,50 L450,50 L462,50 L470,20 L478,4 L486,55 L492,88 L500,50 L600,50 L670,50 Q680,50 685,38 Q690,26 695,38 Q700,50 710,50 L750,50 L762,50 L770,20 L778,4 L786,55 L792,88 L800,50 L900,50 L970,50 Q980,50 985,38 Q990,26 995,38 Q1000,50 1010,50 L1050,50 L1062,50 L1070,20 L1078,4 L1086,55 L1092,88 L1100,50 L1200,50 L1270,50 Q1280,50 1285,38 Q1290,26 1295,38 Q1300,50 1310,50 L1350,50 L1362,50 L1370,20 L1378,4 L1386,55 L1392,88 L1400,50 L1500,50 L1570,50 Q1580,50 1585,38 Q1590,26 1595,38 Q1600,50 1610,50 L1650,50 L1662,50 L1670,20 L1678,4 L1686,55 L1692,88 L1700,50 L1800,50 L1870,50 Q1880,50 1885,38 Q1890,26 1895,38 Q1900,50 1910,50 L1950,50 L1962,50 L1970,20 L1978,4 L1986,55 L1992,88 L2000,50 L2100,50 L2170,50 Q2180,50 2185,38 Q2190,26 2195,38 Q2200,50 2210,50 L2250,50 L2262,50 L2270,20 L2278,4 L2286,55 L2292,88 L2300,50 L2400,50'
               }
               fill="none"
-              stroke="#e11d2e"
+              stroke="#2563eb"
               strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -205,7 +205,7 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
           .ecg-trace {
             display: block;
             animation: ecg-scroll 3.2s linear infinite;
-            filter: drop-shadow(0 0 8px rgba(225, 29, 46, 0.65));
+            filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.65));
           }
           @keyframes ecg-scroll {
             0%   { transform: translateX(0); }

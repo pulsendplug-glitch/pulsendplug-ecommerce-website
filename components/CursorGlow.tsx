@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * A soft red glow that trails the cursor across the entire site.
+ * A soft blue glow that trails the cursor across the entire site.
  * Uses requestAnimationFrame + easing for a smooth "following" feel
  * rather than snapping directly to the pointer.
  */

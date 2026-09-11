@@ -214,7 +214,7 @@ export function AdminPanel() {
             className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
           />
           <button type="submit" className="btn-primary w-full">Enter</button>
-          {loginError && <p className="text-sm text-red-600">{loginError}</p>}
+          {loginError && <p className="text-sm text-blue-600">{loginError}</p>}
           <p className="text-xs text-black/50 dark:text-white/50">
             This checks against the ADMIN_PASSWORD environment variable set in Vercel when you save or delete anything.
           </p>
@@ -471,7 +471,7 @@ export function AdminPanel() {
                   In stock
                 </label>
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-blue-600">{error}</p>}
               <div className="flex gap-3">
                 <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Saving' : form.id ? 'Update Product' : 'Add Product'}</button>
                 {form.id && (<button type="button" onClick={() => setForm(emptyForm)} className="btn-outline">Cancel</button>)}
@@ -491,7 +491,7 @@ export function AdminPanel() {
                     <p className="text-sm text-black/60 dark:text-white/60">{p.category}, {p.price ? `$${p.price}` : 'No price set'}</p>
                   </div>
                   <button onClick={() => editProduct(p)} className="rounded-full border border-black/10 px-4 py-2 text-sm hover:border-pulse-red hover:text-pulse-red dark:border-white/15">Edit</button>
-                  <button onClick={() => handleDelete(p.id)} className="rounded-full border border-black/10 px-4 py-2 text-sm hover:border-red-600 hover:text-red-600 dark:border-white/15">Delete</button>
+                  <button onClick={() => handleDelete(p.id)} className="rounded-full border border-black/10 px-4 py-2 text-sm hover:border-blue-600 hover:text-blue-600 dark:border-white/15">Delete</button>
                 </div>
               ))}
             </div>
