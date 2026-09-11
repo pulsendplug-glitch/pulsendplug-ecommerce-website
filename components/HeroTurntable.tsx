@@ -181,7 +181,7 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
       dragging.current = true;
       dragLastY.current = e.clientY;
       dragSeconds.current = videoRef.current?.currentTime ?? 0;
-      el.setPointerCapture(e.pointerId);
+      el?.setPointerCapture(e.pointerId);
     }
 
     function onPointerMove(e: PointerEvent) {
@@ -199,7 +199,7 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
       if (!dragging.current) return;
       dragging.current = false;
       try {
-        el.releasePointerCapture(e.pointerId);
+        el?.releasePointerCapture(e.pointerId);
       } catch {
         // already released
       }
