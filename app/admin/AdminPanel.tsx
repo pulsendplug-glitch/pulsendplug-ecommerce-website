@@ -6,18 +6,37 @@ type Product = { id: string; name: string; slug: string; category: string; short
 type Business = { id: string; businessName: string; regNumber: string; email: string; phone?: string; discountCode: string; approved: boolean; createdAt: string; };
 type Quote = { id: string; name: string; email: string; business?: string; message: string; type: string; discountPercent: number; isUsBased: boolean; createdAt: string; };
 type Subscriber = { id: string; email: string; phone?: string; createdAt: string };
+type OrderItem = { productId: string; name: string; slug: string; imageUrl: string | null; price: number | null; quantity: number; lineTotal: number | null };
+type Order = {
+  id: string;
+  requestNumber: string;
+  status: string;
+  name: string;
+  email: string;
+  phone: string;
+  deliveryAddress: string;
+  message?: string | null;
+  items: OrderItem[];
+  itemCount: number;
+  subtotal: number;
+  hasUnpricedItems: boolean;
+  createdAt: string;
+};
 
 const emptyForm = { name: '', category: 'Recovery Chairs', shortDesc: '', description: '', price: '', imageUrl: '', images: [] as string[], featured: false, inStock: true };
 const categories = ['Recovery Chairs', 'Saunas', 'Cold Plunge', 'Pilates & Studio', 'Clinical & Rehab', 'Recovery Tools'];
+const orderStatuses = ['New', 'Reviewing', 'Quote Sent', 'Awaiting Customer', 'Confirmed', 'Completed', 'Cancelled'];
 
 export function AdminPanel() {
   const [key, setKey] = useState('');
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<'products' | 'businesses' | 'quotes' | 'subscribers'>('products');
+  const [tab, setTab] = useState<'products' | 'businesses' | 'quotes' | 'orders' | 'subscribers'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [form, setForm] = useState<typeof emptyForm & { id?: string }>(emptyForm);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -34,15 +53,17 @@ export function AdminPanel() {
   async function loadAll() {
     const h = { 'x-admin-key': key };
     try {
-      const [p, b, q, s] = await Promise.all([
+      const [p, b, q, o, s] = await Promise.all([
         fetch('/api/products').then((r) => r.json()),
         fetch('/api/business', { headers: h }).then((r) => r.json()),
         fetch('/api/quote', { headers: h }).then((r) => r.json()),
+        fetch('/api/quote-cart', { headers: h }).then((r) => r.json()),
         fetch('/api/subscribe', { headers: h }).then((r) => r.json()),
       ]);
       setProducts(Array.isArray(p) ? p : []);
       setBusinesses(Array.isArray(b) ? b : []);
       setQuotes(Array.isArray(q) ? q : []);
+      setOrders(Array.isArray(o) ? o : []);
       setSubscribers(Array.isArray(s) ? s : []);
     } catch (e) {
       console.error('Failed to load admin data', e);
@@ -128,6 +149,24 @@ export function AdminPanel() {
     }
   }
 
+  async function handleOrderStatusChange(id: string, status: string) {
+    setUpdatingOrderId(id);
+    try {
+      const res = await fetch(`/api/quote-cart/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Could not update status.');
+      const updated = await res.json();
+      setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('Delete this product?')) return;
     await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'x-admin-key': key } });
@@ -186,6 +225,7 @@ export function AdminPanel() {
 
   const tabs = [
     { id: 'products', label: `Products (${products.length})` },
+    { id: 'orders', label: `Orders (${orders.length})` },
     { id: 'businesses', label: `Businesses (${businesses.length})` },
     { id: 'quotes', label: `Quotes (${quotes.length})` },
     { id: 'subscribers', label: `Subscribers (${subscribers.length})` },
@@ -249,6 +289,84 @@ export function AdminPanel() {
                     </div>
                     <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600 dark:text-green-400">Approved</span>
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'orders' && (
+        <div className="card p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-display text-xl font-bold">Cart Quote Requests</h2>
+            <button
+              onClick={() =>
+                exportCSV(
+                  orders.map((o) => ({
+                    requestNumber: o.requestNumber,
+                    status: o.status,
+                    name: o.name,
+                    email: o.email,
+                    phone: o.phone,
+                    deliveryAddress: o.deliveryAddress,
+                    itemCount: o.itemCount,
+                    subtotal: o.subtotal,
+                    createdAt: o.createdAt,
+                  })),
+                  'orders.csv'
+                )
+              }
+              className="btn-outline text-xs"
+            >
+              Export CSV
+            </button>
+          </div>
+          {orders.length === 0 ? (
+            <p className="text-sm text-black/60 dark:text-white/60">No quote requests yet. These are generated automatically when a customer checks out their cart.</p>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((o) => (
+                <div key={o.id} className="rounded-xl border border-black/5 p-5 dark:border-white/10">
+                  <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-display font-semibold">
+                        #{o.requestNumber} — {o.name}
+                      </p>
+                      <p className="text-sm text-black/60 dark:text-white/60">
+                        {o.email} · {o.phone} · {new Date(o.createdAt).toLocaleString()}
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-black/70 dark:text-white/70">{o.deliveryAddress}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <select
+                        value={o.status}
+                        disabled={updatingOrderId === o.id}
+                        onChange={(e) => handleOrderStatusChange(o.id, e.target.value)}
+                        className="rounded-full border border-black/10 bg-transparent px-3 py-1.5 text-xs font-semibold dark:border-white/15"
+                      >
+                        {orderStatuses.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                      <span className="font-display text-sm font-bold">${o.subtotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-black/5 rounded-lg bg-black/[0.02] dark:divide-white/10 dark:bg-white/[0.03]">
+                    {o.items.map((item) => (
+                      <div key={item.productId} className="flex items-center justify-between px-3 py-2 text-sm">
+                        <span>{item.name} × {item.quantity}</span>
+                        <span className="text-black/60 dark:text-white/50">
+                          {item.lineTotal !== null ? `$${item.lineTotal.toLocaleString()}` : 'Custom pricing'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {o.message && (
+                    <p className="mt-3 rounded-lg bg-black/[0.02] p-3 text-sm dark:bg-white/[0.03]">{o.message}</p>
+                  )}
                 </div>
               ))}
             </div>

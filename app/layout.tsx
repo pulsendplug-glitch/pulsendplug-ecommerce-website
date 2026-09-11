@@ -7,6 +7,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SiteGate } from '@/components/SiteGate';
 import { HelpWidget } from '@/components/HelpWidget';
+import { CartProvider } from '@/components/CartContext';
 
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', weight: ['500', '700'] });
 const body = Inter({ subsets: ['latin'], variable: '--font-body' });
@@ -22,13 +23,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${display.variable} ${body.variable} font-body`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <SiteGate>
-            <CursorGlow />
-            <Header />
-            <main>{children}</main>
-            <Footer />
-            <HelpWidget />
-          </SiteGate>
+          <CartProvider>
+            <SiteGate>
+              <CursorGlow />
+              <Header />
+              <main>{children}</main>
+              <Footer />
+              <HelpWidget />
+            </SiteGate>
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

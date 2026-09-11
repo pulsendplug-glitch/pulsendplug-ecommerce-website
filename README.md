@@ -9,6 +9,10 @@ red glow effect.
 
 - **Next.js 14** (App Router) + **TypeScript** + **Tailwind CSS**
 - **Prisma** + **Postgres** for the product catalog and contact messages
+- A full **shopping cart** (persisted in the browser) with a
+  **Request a Quote checkout** — since online payment isn't live yet,
+  "Checkout" walks customers through submitting their cart as a quote request
+  instead of taking payment
 - **Vercel Blob** for product photo uploads
 - **next-themes** for dark/light mode
 - A lightweight **/admin** panel (password-protected) to add, edit, and
@@ -127,3 +131,53 @@ such as NextAuth.js.
 The contact form currently saves messages to the database only. To get an
 email notification when someone submits the form, connect an email service
 (e.g. Resend or Postmark) inside `app/api/contact/route.ts`.
+
+## Cart & "Request a Quote" checkout
+
+Online payment checkout isn't live yet, so the site uses a cart-based quote
+request as the temporary final checkout step:
+
+1. Customers browse, add products to their cart (persisted in
+   `localStorage`, so it survives a page refresh), and adjust quantities
+   from the cart icon in the header or the `/cart` page.
+2. Clicking **Checkout** shows a modal explaining that online checkout is
+   temporarily unavailable, with a button to continue to `/request-quote`.
+3. `/request-quote` automatically loads the cart as a **read-only** summary
+   — customers can't edit product names, prices, or quantities from this
+   screen; they have to go back to `/cart` to change anything.
+4. After entering their name, email, phone, and delivery address, submitting
+   the form hits `POST /api/quote-cart`, which:
+   - **never trusts the browser's price/name/quantity data** — it re-fetches
+     every product from the database by ID and recalculates everything
+     server-side before saving,
+   - saves the request to the new `CartOrderRequest` table with a unique,
+     human-readable request number (e.g. `PP-4F92K1`),
+   - emails a full breakdown to your team inbox and a confirmation to the
+     customer (see below to enable email).
+5. Staff manage requests from the **Orders** tab in `/admin` — full item
+   breakdown per request, plus a status dropdown (New → Reviewing → Quote
+   Sent → Awaiting Customer → Confirmed → Completed/Cancelled).
+
+**To enable email notifications:**
+
+1. Create a free account at https://resend.com and grab an API key.
+2. Add `RESEND_API_KEY` to your `.env` (and to Vercel's project settings).
+3. Optionally verify your own sending domain in Resend and set `EMAIL_FROM`
+   to an address on that domain (e.g. `Pulse & Plug <orders@pulseandplug.com>`).
+   Until you do, emails send from Resend's shared sandbox address, which only
+   reliably delivers to the email you signed up to Resend with — fine for
+   testing, not for production.
+4. `NOTIFY_EMAIL` controls where new quote requests are sent internally;
+   it defaults to `pulsendplug@gmail.com` if not set.
+
+If `RESEND_API_KEY` isn't set, quote requests still save correctly to the
+database — the app just logs a warning and skips sending the email, so
+nothing breaks before you've configured it.
+
+**Important:** because this adds a new database table, remember to run the
+schema push again (locally and/or against your production database) after
+pulling this update:
+
+```bash
+npx prisma db push
+```

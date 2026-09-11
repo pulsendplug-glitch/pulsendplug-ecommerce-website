@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { RetailQuoteForm } from '@/components/RetailQuoteForm';
 import { Product360Button } from '@/components/Product360Viewer';
+import { ProductAddToCart } from '@/components/ProductAddToCart';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,8 +54,19 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <span className="text-sm font-medium">{product.inStock ? 'In Stock' : 'Out of Stock'}</span>
             </div>
 
+            <div className="mb-6">
+              <ProductAddToCart
+                productId={product.id}
+                name={product.name}
+                slug={product.slug}
+                imageUrl={product.imageUrl}
+                price={product.price}
+                inStock={product.inStock}
+              />
+            </div>
+
             <div className="flex flex-wrap gap-4">
-              <Link href="/contact" className="btn-primary">Request a Quote</Link>
+              <Link href="/contact" className="btn-outline">Ask a Question Instead</Link>
               <Link href="/shop" className="btn-outline">Keep Browsing</Link>
             </div>
           </div>

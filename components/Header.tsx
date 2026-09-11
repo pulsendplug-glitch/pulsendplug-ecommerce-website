@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
+import { useCart } from './CartContext';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -15,6 +16,7 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { itemCount } = useCart();
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-pulse-black/80">
@@ -59,6 +61,20 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/cart"
+            aria-label="View cart"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full border border-black/10 transition-colors hover:border-pulse-red hover:text-pulse-red dark:border-white/15"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-1.6 4h11.2M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+            </svg>
+            {itemCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-pulse-red px-1 text-[11px] font-bold text-white">
+                {itemCount}
+              </span>
+            )}
+          </Link>
           <Link href="/contact" className="hidden btn-primary md:inline-flex">Request a Quote</Link>
           <ThemeToggle />
         </div>
@@ -82,6 +98,13 @@ export function Header() {
               {link.href === '/business' ? 'Business Portal' : link.label}
             </Link>
           ))}
+          <Link
+            href="/cart"
+            onClick={() => setOpen(false)}
+            className="rounded-xl px-3 py-3 text-base font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            Cart {itemCount > 0 ? `(${itemCount})` : ''}
+          </Link>
           <Link href="/contact" onClick={() => setOpen(false)} className="btn-primary mt-3 w-full">
             Request a Quote
           </Link>

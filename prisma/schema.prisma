@@ -49,6 +49,23 @@ model QuoteRequest {
   createdAt       DateTime @default(now())
 }
 
+model CartOrderRequest {
+  id              String   @id @default(cuid())
+  requestNumber   String   @unique
+  status          String   @default("New")
+  name            String
+  email           String
+  phone           String
+  deliveryAddress String
+  message         String?
+  items           Json
+  itemCount       Int
+  subtotal        Float
+  hasUnpricedItems Boolean @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model Subscriber {
   id        String   @id @default(cuid())
   email     String   @unique
