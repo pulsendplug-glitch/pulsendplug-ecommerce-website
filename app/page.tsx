@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { ProductCard } from '@/components/ProductCard';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { HeroTurntable } from '@/components/HeroTurntable';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,46 +53,34 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-black/5 bg-pulse-fog dark:border-white/10 dark:bg-pulse-charcoal">
-        <div className="fine-pointer-glow pointer-events-none absolute -right-40 -top-40 h-96 w-96 rounded-full bg-pulse-red/20 blur-3xl" />
-        <div className="container-max section-pad grid items-center gap-12 py-24 md:grid-cols-2 md:py-32">
-          <div className="animate-fadeUp">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
-              Premium Wellness &amp; Recovery Equipment
-            </p>
-            <h1 className="mb-6 font-display text-4xl font-bold leading-tight md:text-6xl">
-              Don&apos;t Just Give Customers a Service.
-              <span className="text-pulse-red"> Give Them an Experience.</span>
-            </h1>
-            <p className="mb-8 max-w-xl text-lg text-black/70 dark:text-white/70">
-              Pulse &amp; Plug supplies premium massage chairs, infrared saunas, cold plunge systems, and
-              recovery equipment to fitness studios, clinics, and wellness businesses that want to give
-              their clients something to look forward to.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/shop" className="btn-primary">Shop Equipment</Link>
-              <Link href="/contact" className="btn-outline">Request a Quote</Link>
+      {/* HERO — fullscreen, scroll/drag-scrubbed 360deg chair turntable behind the copy */}
+      <section className="relative border-b border-black/5 dark:border-white/10">
+        <HeroTurntable>
+          <div className="container-max section-pad w-full text-white">
+            <div className="max-w-2xl animate-fadeUp">
+              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
+                Premium Wellness &amp; Recovery Equipment
+              </p>
+              <h1 className="mb-6 font-display text-4xl font-bold leading-tight md:text-6xl">
+                Don&apos;t Just Give Customers a Service.
+                <span className="text-pulse-red"> Give Them an Experience.</span>
+              </h1>
+              <p className="mb-8 max-w-xl text-lg text-white/80">
+                Pulse &amp; Plug supplies premium massage chairs, infrared saunas, cold plunge systems, and
+                recovery equipment to fitness studios, clinics, and wellness businesses that want to give
+                their clients something to look forward to.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/shop" className="btn-primary">Shop Equipment</Link>
+                <Link href="/contact" className="btn-outline">Request a Quote</Link>
+              </div>
+              <div className="mt-10 inline-flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-3 backdrop-blur-sm">
+                <p className="font-display text-2xl font-bold text-pulse-red">250+</p>
+                <p className="text-sm text-white/80">Businesses Equipped</p>
+              </div>
             </div>
           </div>
-          <div className="relative animate-fadeUp">
-            <div className="relative aspect-square overflow-hidden rounded-3xl shadow-2xl md:aspect-[4/5]">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="h-full w-full object-cover"
-              >
-                <source src="/videos/hero-massage-chair.mp4" type="video/mp4" />
-              </video>
-            </div>
-            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-white p-5 shadow-xl dark:bg-pulse-steel md:block">
-              <p className="font-display text-2xl font-bold text-pulse-red">250+</p>
-              <p className="text-sm text-black/60 dark:text-white/60">Businesses Equipped</p>
-            </div>
-          </div>
-        </div>
+        </HeroTurntable>
       </section>
 
       {/* VALUE PROPS STRIP */}
