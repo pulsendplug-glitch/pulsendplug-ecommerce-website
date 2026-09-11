@@ -17,7 +17,6 @@ model Product {
   price       Float?
   imageUrl    String?
   images      String[] @default([])
-  videoUrl    String?
   featured    Boolean  @default(false)
   inStock     Boolean  @default(true)
   createdAt   DateTime @default(now())
