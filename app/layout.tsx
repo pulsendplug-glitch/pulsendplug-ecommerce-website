@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: 'Pulse & Plug | Premium Wellness & Recovery Equipment',
   description:
     "Pulse & Plug supplies premium wellness, recovery, and studio equipment including massage chairs, infrared saunas, and cold plunge systems, helping fitness, wellness, and therapeutic businesses give their clients an experience worth remembering.",
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-icon.png',
+    shortcut: '/icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

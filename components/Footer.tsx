@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { NewsletterForm } from './NewsletterForm';
 export function Footer() {
@@ -6,7 +7,7 @@ export function Footer() {
       <div className="container-max section-pad grid gap-12 py-16 md:grid-cols-4">
         <div>
           <div className="mb-4 flex items-center gap-2 font-display text-xl font-bold">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-pulse-red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12h4l2-7 4 14 2-7h6" /></svg></span>
+            <span className="relative h-10 w-10 flex-shrink-0"><Image src="/logo-mark.png" alt="Pulse & Plug logo" fill className="object-contain" /></span>
             Pulse&amp;Plug
           </div>
           <p className="text-sm text-white/60">Premium wellness and recovery equipment that helps studios, clinics, and gyms give their clients an experience worth coming back for.</p>

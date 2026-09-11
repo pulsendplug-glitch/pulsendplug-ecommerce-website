@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -37,12 +38,12 @@ export function Header() {
           </button>
 
           <Link href="/" className="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-pulse-red text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h4l2-7 4 14 2-7h6" />
-              </svg>
+            <span className="relative h-9 w-9 flex-shrink-0 sm:h-10 sm:w-10">
+              <Image src="/logo-mark.png" alt="Pulse & Plug logo" fill className="object-contain" priority />
             </span>
-            Pulse<span className="text-pulse-red">&amp;</span>Plug
+            <span className="hidden sm:inline">
+              Pulse<span className="text-pulse-red">&amp;</span>Plug
+            </span>
           </Link>
         </div>
 

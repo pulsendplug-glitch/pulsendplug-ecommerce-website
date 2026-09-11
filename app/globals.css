@@ -9,11 +9,15 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
   @apply bg-white text-pulse-black dark:bg-pulse-black dark:text-white transition-colors duration-300;
   font-family: var(--font-body);
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, .font-display {

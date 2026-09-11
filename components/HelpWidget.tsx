@@ -41,9 +41,9 @@ export function HelpWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       {open && (
-        <div className="mb-4 flex h-[28rem] w-80 flex-col overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-pulse-charcoal">
+        <div className="mb-4 flex h-[28rem] max-h-[70vh] w-[calc(100vw-2rem)] max-w-80 flex-col overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-pulse-charcoal">
           <div className="flex items-center justify-between border-b border-black/5 p-4 dark:border-white/10">
             <p className="font-display font-semibold">Site Helper</p>
             <button onClick={() => setOpen(false)} className="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">

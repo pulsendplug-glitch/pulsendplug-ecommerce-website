@@ -438,7 +438,7 @@ export function AdminPanel() {
                   Upload several photos of the product taken from different angles, turning it a little between each shot. Customers can then drag to spin through them on the product page. Skip this if you only have the one main photo.
                 </p>
                 {form.images.length > 0 && (
-                  <div className="mb-3 grid grid-cols-4 gap-2">
+                  <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {form.images.map((url) => (
                       <div key={url} className="group relative aspect-square overflow-hidden rounded-lg bg-pulse-fog dark:bg-pulse-steel">
                         <Image src={url} alt="Angle photo" fill className="object-cover" />
