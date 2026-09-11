@@ -51,7 +51,7 @@ export function buildTeamNotificationEmail(q: QuoteEmailData) {
 
   const html = `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;color:#111;">
-    <div style="background:#2563eb;color:#fff;padding:20px 24px;border-radius:10px 10px 0 0;">
+    <div style="background:#e11d2e;color:#fff;padding:20px 24px;border-radius:10px 10px 0 0;">
       <h1 style="margin:0;font-size:20px;">New Quote Request #${escapeHtml(q.requestNumber)}</h1>
       <p style="margin:4px 0 0;opacity:.9;font-size:13px;">Pulse &amp; Plug — ${q.createdAt.toLocaleString()}</p>
     </div>

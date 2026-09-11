@@ -76,6 +76,15 @@ export function Header() {
               </span>
             )}
           </Link>
+          <Link
+            href="/contact"
+            aria-label="Request a Quote"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 transition-colors hover:border-pulse-red hover:text-pulse-red dark:border-white/15 md:hidden"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h6m-6 8v-3.5A2.5 2.5 0 0 1 9.5 14H18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1Z" />
+            </svg>
+          </Link>
           <Link href="/contact" className="hidden btn-primary md:inline-flex">Request a Quote</Link>
           <ThemeToggle />
         </div>

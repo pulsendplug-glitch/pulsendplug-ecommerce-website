@@ -214,7 +214,7 @@ export function AdminPanel() {
             className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
           />
           <button type="submit" className="btn-primary w-full">Enter</button>
-          {loginError && <p className="text-sm text-blue-600">{loginError}</p>}
+          {loginError && <p className="text-sm text-red-600">{loginError}</p>}
           <p className="text-xs text-black/50 dark:text-white/50">
             This checks against the ADMIN_PASSWORD environment variable set in Vercel when you save or delete anything.
           </p>
@@ -393,7 +393,7 @@ export function AdminPanel() {
                       <p className="mt-1 text-sm">{q.message.substring(0, 100)}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${q.type === 'business' ? 'bg-blue-500/10 text-blue-600' : 'bg-gray-500/10 text-gray-600 dark:text-gray-400'}`}>{q.type}</span>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${q.type === 'business' ? 'bg-red-500/10 text-red-600' : 'bg-gray-500/10 text-gray-600 dark:text-gray-400'}`}>{q.type}</span>
                       {q.discountPercent > 0 && <span className="rounded-full bg-pulse-red/10 px-3 py-1 text-xs font-semibold text-pulse-red">{q.discountPercent}% off</span>}
                       {q.isUsBased && <span className="text-xs text-black/40 dark:text-white/40">US Resident</span>}
                     </div>
@@ -471,7 +471,7 @@ export function AdminPanel() {
                   In stock
                 </label>
               </div>
-              {error && <p className="text-sm text-blue-600">{error}</p>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex gap-3">
                 <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Saving' : form.id ? 'Update Product' : 'Add Product'}</button>
                 {form.id && (<button type="button" onClick={() => setForm(emptyForm)} className="btn-outline">Cancel</button>)}
@@ -491,7 +491,7 @@ export function AdminPanel() {
                     <p className="text-sm text-black/60 dark:text-white/60">{p.category}, {p.price ? `$${p.price}` : 'No price set'}</p>
                   </div>
                   <button onClick={() => editProduct(p)} className="rounded-full border border-black/10 px-4 py-2 text-sm hover:border-pulse-red hover:text-pulse-red dark:border-white/15">Edit</button>
-                  <button onClick={() => handleDelete(p.id)} className="rounded-full border border-black/10 px-4 py-2 text-sm hover:border-blue-600 hover:text-blue-600 dark:border-white/15">Delete</button>
+                  <button onClick={() => handleDelete(p.id)} className="rounded-full border border-black/10 px-4 py-2 text-sm hover:border-red-600 hover:text-red-600 dark:border-white/15">Delete</button>
                 </div>
               ))}
             </div>

@@ -100,7 +100,7 @@ export function RetailQuoteForm({ productName }: { productName?: string }) {
         className="btn-primary w-full sm:w-auto">
         {status === 'sending' ? 'Sending…' : 'Request Quote'}
       </button>
-      {status === 'error' && <p className="text-sm text-blue-600">Something went wrong, please try again.</p>}
+      {status === 'error' && <p className="text-sm text-red-600">Something went wrong, please try again.</p>}
     </form>
   );
 }

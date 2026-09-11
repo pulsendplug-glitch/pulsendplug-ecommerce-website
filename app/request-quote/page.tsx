@@ -118,7 +118,7 @@ export default function RequestQuotePage() {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
                 />
-                {errors.name && <p className="mt-1 text-xs text-blue-600">{errors.name}</p>}
+                {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">Email Address *</label>
@@ -128,7 +128,7 @@ export default function RequestQuotePage() {
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
                 />
-                {errors.email && <p className="mt-1 text-xs text-blue-600">{errors.email}</p>}
+                {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">Phone Number *</label>
@@ -137,7 +137,7 @@ export default function RequestQuotePage() {
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
                 />
-                {errors.phone && <p className="mt-1 text-xs text-blue-600">{errors.phone}</p>}
+                {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">Delivery Address *</label>
@@ -147,7 +147,7 @@ export default function RequestQuotePage() {
                   placeholder="Street, city, state, zip"
                   className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
                 />
-                {errors.deliveryAddress && <p className="mt-1 text-xs text-blue-600">{errors.deliveryAddress}</p>}
+                {errors.deliveryAddress && <p className="mt-1 text-xs text-red-600">{errors.deliveryAddress}</p>}
               </div>
             </div>
 
@@ -162,7 +162,7 @@ export default function RequestQuotePage() {
               />
             </div>
 
-            {serverError && <p className="text-sm text-blue-600">{serverError}</p>}
+            {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
             <button type="submit" disabled={status === 'submitting'} className="btn-primary w-full sm:w-auto">
               {status === 'submitting' ? 'Submitting…' : 'Submit Quote Request'}

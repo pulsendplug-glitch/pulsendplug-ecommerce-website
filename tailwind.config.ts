@@ -10,8 +10,8 @@ const config: Config = {
     extend: {
       colors: {
         pulse: {
-          red: '#2563eb',
-          redDark: '#1e40af',
+          red: '#e11d2e',
+          redDark: '#a10f1d',
           black: '#0a0a0b',
           charcoal: '#161618',
           steel: '#232326',
@@ -23,7 +23,7 @@ const config: Config = {
         body: ['var(--font-body)', 'sans-serif'],
       },
       boxShadow: {
-        glow: '0 0 40px rgba(37, 99, 235, 0.35)',
+        glow: '0 0 40px rgba(225, 29, 46, 0.35)',
       },
       keyframes: {
         fadeUp: {
