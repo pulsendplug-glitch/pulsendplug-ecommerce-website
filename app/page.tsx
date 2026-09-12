@@ -68,7 +68,7 @@ export default async function HomePage() {
           aria-hidden="true"
           viewBox="0 0 1600 220"
           preserveAspectRatio="none"
-          className="pointer-events-none absolute left-0 top-1/2 hidden h-40 w-full -translate-y-1/2 opacity-70 md:block md:h-56"
+          className="pointer-events-none absolute left-0 top-1/2 hidden h-40 w-full -translate-y-1/2 opacity-25 md:block md:h-56"
         >
           <path
             d="M0,110 L520,110 L560,110 Q572,110 580,90 Q588,70 596,90 Q604,110 616,110 L660,110 L900,110 L940,110 Q952,110 960,60 Q968,10 976,60 Q984,110 996,110 L1040,110 L1600,110"
@@ -77,11 +77,11 @@ export default async function HomePage() {
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ filter: 'drop-shadow(0 0 10px rgba(225,29,46,0.75))' }}
+            style={{ filter: 'drop-shadow(0 0 4px rgba(225,29,46,0.5))' }}
           />
         </svg>
 
-        <div className="container-max section-pad relative grid items-center gap-12 py-20 md:grid-cols-2 md:py-28">
+        <div className="container-max section-pad relative grid items-center gap-10 py-16 md:grid-cols-[0.85fr_1.15fr] md:gap-8 md:py-20">
           <div className="relative z-10 text-center md:text-left">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
               Premium Wellness &amp; Recovery Equipment
@@ -107,7 +107,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <HeroTurntable className="relative z-10 mx-auto max-w-md md:max-w-none" />
+          <HeroTurntable className="relative z-10 mx-auto w-full max-w-lg md:max-w-none" />
         </div>
       </section>
 

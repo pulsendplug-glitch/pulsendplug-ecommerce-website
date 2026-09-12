@@ -168,7 +168,7 @@ export function HeroTurntable({ className = '' }: { className?: string }) {
         style={{ background: 'radial-gradient(60% 60% at 55% 60%, rgba(225,29,46,0.45), transparent 70%)' }}
       />
 
-      <div className="relative aspect-[4/5] w-full cursor-grab overflow-visible active:cursor-grabbing sm:aspect-[5/6]">
+      <div className="relative aspect-[3/4] w-full cursor-grab overflow-visible active:cursor-grabbing sm:aspect-[4/5]">
         {!showStatic && (
           <video
             ref={videoRef}
