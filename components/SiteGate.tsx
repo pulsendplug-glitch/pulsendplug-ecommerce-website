@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { isValidEmail, isValidPhone, EMAIL_ERROR, PHONE_ERROR } from '@/lib/validation';
 
 type Phase = 'checking' | 'newsletter' | 'heartbeat' | 'cookies' | 'done';
 
@@ -52,10 +53,13 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
     const cookieChoice = localStorage.getItem('pp_cookie_consent');
     const introShown = sessionStorage.getItem('pp_intro_shown');
 
-    if (!subscribed) {
-      setPhase('newsletter');
-    } else if (!introShown) {
+    // Order: opening animation plays first (once per browser session), then
+    // the newsletter prompt (once ever, until they subscribe), then the
+    // cookie notice (once ever, until they choose).
+    if (!introShown) {
       setPhase('heartbeat');
+    } else if (!subscribed) {
+      setPhase('newsletter');
     } else if (!cookieChoice) {
       setPhase('cookies');
     } else {
@@ -66,17 +70,30 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (phase !== 'heartbeat') return;
 
-    if (audioCtxRef.current) {
-      try {
-        if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
-        playHeartbeat(audioCtxRef.current);
-      } catch {
-        // Audio is a nice-to-have; if it fails, the visual animation still runs fine.
+    // Best-effort only: the animation now plays before any click has
+    // happened on the page, so browsers' autoplay policy will typically
+    // keep this AudioContext suspended (silent) on a first-ever visit.
+    // It's still worth attempting — some browsers allow it, and returning
+    // visitors who already interacted with the site once often get sound.
+    // The visual animation is unaffected either way.
+    try {
+      if (!audioCtxRef.current) {
+        const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+        audioCtxRef.current = new Ctx();
       }
+      if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+      playHeartbeat(audioCtxRef.current);
+    } catch {
+      // Audio is a nice-to-have; if it fails, the visual animation still runs fine.
     }
 
     const timer = setTimeout(() => {
       sessionStorage.setItem('pp_intro_shown', '1');
+      const subscribed = localStorage.getItem('pp_subscribed');
+      if (!subscribed) {
+        setPhase('newsletter');
+        return;
+      }
       const cookieChoice = localStorage.getItem('pp_cookie_consent');
       setPhase(cookieChoice ? 'done' : 'cookies');
     }, reducedMotion ? 900 : 2600);
@@ -86,17 +103,17 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setSubmitting(true);
 
-    // Create the AudioContext now, while we're still inside a real user click,
-    // so the browser allows sound to play a moment later during the heartbeat phase.
-    try {
-      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
-      audioCtxRef.current = new Ctx();
-    } catch {
-      audioCtxRef.current = null;
+    if (!isValidEmail(form.email)) {
+      setError(EMAIL_ERROR);
+      return;
+    }
+    if (!isValidPhone(form.phone)) {
+      setError(PHONE_ERROR);
+      return;
     }
 
+    setSubmitting(true);
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
@@ -106,8 +123,8 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong.');
       localStorage.setItem('pp_subscribed', '1');
-      const introShown = sessionStorage.getItem('pp_intro_shown');
-      setPhase(introShown ? (localStorage.getItem('pp_cookie_consent') ? 'done' : 'cookies') : 'heartbeat');
+      const cookieChoice = localStorage.getItem('pp_cookie_consent');
+      setPhase(cookieChoice ? 'done' : 'cookies');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -134,11 +151,16 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
             </span>
             Pulse<span className="text-pulse-red">&amp;</span>Plug
           </div>
-          <h2 className="mb-2 font-display text-2xl font-bold">Join Our Newsletter</h2>
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-pulse-red/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pulse-red">
+            <span aria-hidden="true">🔔</span> Notification
+          </div>
+          <h2 className="mb-2 font-display text-2xl font-bold">Subscribe to Our Newsletter</h2>
           <p className="mb-6 text-sm text-white/60">
-            Enter your email and phone number to get updates on new equipment and offers before you continue.
+            Enter your email and phone number (with country code) to get updates on new equipment and
+            offers before you continue.
           </p>
-          <form onSubmit={handleSubscribe} className="space-y-4">
+          <form onSubmit={handleSubscribe} className="space-y-4" noValidate>
             <input
               type="email"
               required
@@ -150,14 +172,18 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
             <input
               type="tel"
               required
-              placeholder="Phone number"
+              inputMode="tel"
+              placeholder="+1 5551234567"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 text-white outline-none focus:border-pulse-red"
             />
+            <p className="text-xs text-white/40">
+              Phone must include a country code (starting with +) and at least 11 digits.
+            </p>
             {error && <p className="text-sm text-red-400">{error}</p>}
             <button type="submit" disabled={submitting} className="btn-primary w-full">
-              {submitting ? 'Submitting' : 'Continue to Site'}
+              {submitting ? 'Submitting' : 'Subscribe & Continue'}
             </button>
           </form>
         </div>
@@ -221,25 +247,27 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
 
   if (phase === 'cookies') {
     return (
-      <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
-        <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-8 dark:border-white/10 dark:bg-pulse-charcoal">
-          <h2 className="mb-3 font-display text-xl font-bold">Cookie Notice</h2>
-          <p className="mb-6 text-sm text-black/70 dark:text-white/70">
-            We use cookies to improve your experience on this site. Please choose an option to continue.
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => handleCookieChoice('declined')}
-              className="flex-1 rounded-full border border-black/15 py-3 text-sm font-medium dark:border-white/20"
-            >
-              Decline
-            </button>
-            <button
-              onClick={() => handleCookieChoice('accepted')}
-              className="flex-1 rounded-full bg-pulse-red py-3 text-sm font-semibold text-white"
-            >
-              Accept
-            </button>
+      <div className="fixed inset-0 z-[999] bg-pulse-black">
+        <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-pulse-charcoal/70 p-5 text-white backdrop-blur-md md:p-6">
+          <div className="container-max flex flex-col items-center gap-4 md:flex-row md:justify-between">
+            <p className="text-center text-sm text-white/80 md:text-left">
+              <span className="font-semibold text-white">Cookies</span> — To improve user experience, this
+              site uses cookies.
+            </p>
+            <div className="flex w-full gap-3 md:w-auto">
+              <button
+                onClick={() => handleCookieChoice('declined')}
+                className="flex-1 rounded-full border border-white/25 px-6 py-2.5 text-sm font-medium text-white md:flex-none"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => handleCookieChoice('accepted')}
+                className="flex-1 rounded-full bg-pulse-red px-6 py-2.5 text-sm font-semibold text-white md:flex-none"
+              >
+                Accept
+              </button>
+            </div>
           </div>
         </div>
       </div>
