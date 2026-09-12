@@ -7,6 +7,14 @@ import { HeroTurntable } from '@/components/HeroTurntable';
 
 export const dynamic = 'force-dynamic';
 
+function ArrowIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 const categories = [
   { name: 'Recovery Chairs', desc: 'Zero gravity massage and recline' },
   { name: 'Saunas', desc: 'Full spectrum infrared' },
@@ -53,25 +61,55 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* HERO: fullscreen scroll and drag scrubbed 360 turntable */}
-      <HeroTurntable>
-        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
-          Premium Wellness &amp; Recovery Equipment
-        </p>
-        <h1 className="mb-6 max-w-4xl font-display text-4xl font-bold leading-tight text-white md:text-6xl">
-          Don&apos;t Just Give Customers a Service.
-          <span className="text-pulse-red"> Give Them an Experience.</span>
-        </h1>
-        <p className="mb-8 max-w-xl text-lg text-white/85">
-          Pulse &amp; Plug supplies premium massage chairs, infrared saunas, cold plunge systems, and
-          recovery equipment to fitness studios, clinics, and wellness businesses that want to give
-          their clients something to look forward to.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/shop" className="btn-primary">Shop Equipment</Link>
-          <Link href="/contact" className="btn-outline border-white text-white hover:border-pulse-red">Request a Quote</Link>
+      {/* HERO: dark two-column layout with an ambient ECG line and a bounded, bolder 3D chair viewer */}
+      <section className="relative overflow-hidden bg-pulse-black text-white">
+        {/* Ambient ECG heartbeat line running behind the whole hero, echoing the brand's opening animation */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 1600 220"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute left-0 top-1/2 hidden h-40 w-full -translate-y-1/2 opacity-70 md:block md:h-56"
+        >
+          <path
+            d="M0,110 L520,110 L560,110 Q572,110 580,90 Q588,70 596,90 Q604,110 616,110 L660,110 L900,110 L940,110 Q952,110 960,60 Q968,10 976,60 Q984,110 996,110 L1040,110 L1600,110"
+            fill="none"
+            stroke="#e11d2e"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ filter: 'drop-shadow(0 0 10px rgba(225,29,46,0.75))' }}
+          />
+        </svg>
+
+        <div className="container-max section-pad relative grid items-center gap-12 py-20 md:grid-cols-2 md:py-28">
+          <div className="relative z-10 text-center md:text-left">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
+              Premium Wellness &amp; Recovery Equipment
+            </p>
+            <h1 className="mb-6 font-display text-4xl font-bold leading-tight text-white md:text-6xl">
+              Don&apos;t Just Give Customers a Service.
+              <span className="text-pulse-red"> Give Them an Experience.</span>
+            </h1>
+            <p className="mx-auto mb-8 max-w-xl text-lg text-white/70 md:mx-0">
+              Pulse &amp; Plug supplies premium massage chairs, infrared saunas, cold plunge systems, and
+              recovery equipment to fitness studios, clinics, and wellness businesses that want to give
+              their clients something to look forward to.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 md:justify-start">
+              <Link href="/shop" className="btn-primary">
+                Shop Equipment
+                <ArrowIcon />
+              </Link>
+              <Link href="/contact" className="btn-outline border-white text-white hover:border-pulse-red">
+                Request a Quote
+                <ArrowIcon />
+              </Link>
+            </div>
+          </div>
+
+          <HeroTurntable className="relative z-10 mx-auto max-w-md md:max-w-none" />
         </div>
-      </HeroTurntable>
+      </section>
 
       {/* VALUE PROPS STRIP */}
       <section className="border-b border-black/5 dark:border-white/10">

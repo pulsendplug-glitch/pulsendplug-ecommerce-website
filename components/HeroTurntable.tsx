@@ -2,17 +2,29 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-// Full rotation of the chair is mapped to this much extra scroll distance
-// (on top of the one screen-height the hero itself occupies).
-const SCRUB_VH = 100;
 // How long one full idle auto-rotation loop takes, in seconds.
 const IDLE_ROTATION_SECONDS = 13;
-// How long the user must stop interacting before idle auto-rotate resumes.
+// How long the user must stop dragging before idle auto-rotate resumes.
 const IDLE_RESUME_DELAY_MS = 1200;
 // Drag sensitivity: pixels of vertical mouse drag needed for one full rotation.
-const DRAG_PX_PER_ROTATION = 600;
+const DRAG_PX_PER_ROTATION = 500;
 
-export function HeroTurntable({ children }: { children?: React.ReactNode }) {
+/**
+ * A bounded, self-contained 360deg product viewer — NOT a full-bleed
+ * scroll-jacked hero background. It sits inside a normal-sized box next to
+ * the hero copy (see app/page.tsx) and never changes the page's scroll
+ * height, so there's no extra "dead scroll" runway before the next section.
+ *
+ * Rotation sources:
+ *   - Idle ambient auto-rotate, always on by default.
+ *   - Mouse/pen click-drag to manually spin (desktop). Touch is
+ *     deliberately left to do nothing special here — this widget is a
+ *     normal-height box now, not a full-viewport hijack, so there's no
+ *     scroll-trap risk either way, but a custom touch-drag on a small
+ *     photo-ish widget mostly just fights the user's attempt to scroll
+ *     the page, so we skip it and let touch scroll normally.
+ */
+export function HeroTurntable({ className = '' }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>();
@@ -28,7 +40,7 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
   const [failed, setFailed] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
-  // Respect prefers-reduced-motion: no scrub, no auto-rotate, just a still frame.
+  // Respect prefers-reduced-motion: no auto-rotate, no drag, just a still frame.
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mq.matches);
@@ -37,7 +49,7 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // Pause everything when the hero scrolls out of view, to save performance.
+  // Pause the rAF loop when the widget scrolls out of view, to save performance.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -54,8 +66,7 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
   useEffect(() => {
     if (reducedMotion) return;
     const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
+    if (!video) return;
 
     function onLoaded() {
       durationRef.current = video!.duration || 0;
@@ -82,32 +93,16 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
     function setScrubTime(t: number) {
       const duration = durationRef.current;
       if (!duration || !video) return;
-      // Wrap around with modulo so the loop never jumps.
-      const wrapped = ((t % duration) + duration) % duration;
+      const wrapped = ((t % duration) + duration) % duration; // seamless wraparound
       video.currentTime = wrapped;
-    }
-
-    function scrollProgress() {
-      const rect = container!.getBoundingClientRect();
-      const scrubDistance = (container!.offsetHeight - window.innerHeight);
-      if (scrubDistance <= 0) return 0;
-      const scrolled = Math.min(Math.max(-rect.top, 0), scrubDistance);
-      return scrolled / scrubDistance;
     }
 
     function markInteraction() {
       lastInteractionRef.current = performance.now();
     }
 
-    function handleScroll() {
-      if (draggingRef.current) return;
-      markInteraction();
-      const progress = scrollProgress();
-      setScrubTime(progress * durationRef.current);
-    }
-
     function handlePointerDown(e: PointerEvent) {
-      if (e.pointerType !== 'mouse') return; // touch already handled by native page scroll
+      if (e.pointerType !== 'mouse') return; // touch: no custom capture, see note above
       draggingRef.current = true;
       dragStartYRef.current = e.clientY;
       dragStartTimeRef.current = video!.currentTime;
@@ -124,14 +119,14 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
 
     function handlePointerUp() {
       draggingRef.current = false;
+      markInteraction();
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
     container.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
 
-    // Idle ambient auto-rotation, running on its own rAF loop.
+    // Idle ambient auto-rotation, on its own rAF loop.
     let lastFrameTime = performance.now();
     function tick(now: number) {
       const dt = (now - lastFrameTime) / 1000;
@@ -144,9 +139,9 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
         idleTimeRef.current += dt;
         const rate = durationRef.current / IDLE_ROTATION_SECONDS;
         setScrubTime(idleTimeRef.current * rate);
-      } else {
-        // Keep idle clock roughly in sync with wherever scrubbing left off,
-        // so auto-rotate resumes smoothly rather than snapping.
+      } else if (draggingRef.current) {
+        // Keep the idle clock in sync with wherever dragging leaves off, so
+        // auto-rotate resumes smoothly instead of snapping.
         idleTimeRef.current = (video!.currentTime / durationRef.current) * IDLE_ROTATION_SECONDS;
       }
 
@@ -154,11 +149,7 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
     }
     rafRef.current = requestAnimationFrame(tick);
 
-    // Set the initial frame right away.
-    handleScroll();
-
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       container.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
@@ -169,8 +160,15 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
   const showStatic = reducedMotion || failed;
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: `calc(100vh + ${SCRUB_VH}vh)` }}>
-      <div className="sticky top-0 h-screen w-full cursor-grab overflow-hidden bg-pulse-black active:cursor-grabbing">
+    <div ref={containerRef} className={`relative select-none ${className}`}>
+      {/* Ambient red glow behind the chair for a bolder, more dramatic presentation */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
+        style={{ background: 'radial-gradient(60% 60% at 55% 60%, rgba(225,29,46,0.45), transparent 70%)' }}
+      />
+
+      <div className="relative aspect-[4/5] w-full cursor-grab overflow-visible active:cursor-grabbing sm:aspect-[5/6]">
         {!showStatic && (
           <video
             ref={videoRef}
@@ -179,7 +177,10 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
             preload="auto"
             disablePictureInPicture
             aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-contain"
+            style={{
+              filter: 'contrast(1.18) saturate(1.35) brightness(1.06) drop-shadow(0 35px 45px rgba(0,0,0,0.55))',
+            }}
           >
             <source src="/videos/chair-turntable.mp4" type="video/mp4" />
           </video>
@@ -187,22 +188,13 @@ export function HeroTurntable({ children }: { children?: React.ReactNode }) {
         {showStatic && (
           <img
             src="/videos/chair-poster.jpg"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover"
+            alt="Pulse & Plug massage chair"
+            className="absolute inset-0 h-full w-full object-contain"
+            style={{
+              filter: 'contrast(1.18) saturate(1.35) brightness(1.06) drop-shadow(0 35px 45px rgba(0,0,0,0.55))',
+            }}
           />
         )}
-
-        {/* Readability overlay */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.6))' }}
-        />
-
-        {/* Hero content, always on top of the video layer */}
-        <div className="pointer-events-none relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-          <div className="pointer-events-auto">{children}</div>
-        </div>
       </div>
     </div>
   );

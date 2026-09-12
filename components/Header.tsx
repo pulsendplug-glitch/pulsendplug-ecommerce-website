@@ -137,9 +137,6 @@ export function Header() {
           >
             Cart {itemCount > 0 ? `(${itemCount})` : ''}
           </Link>
-          <Link href="/contact" onClick={() => setOpen(false)} className="btn-primary mt-3 w-full">
-            Request a Quote
-          </Link>
         </nav>
       </div>
     </header>
