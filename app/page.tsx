@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { ProductCard } from '@/components/ProductCard';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { HeroTurntable } from '@/components/HeroTurntable';
 
 export const dynamic = 'force-dynamic';
 
