@@ -54,7 +54,7 @@ export function ProductAddToCart({ productId, name, slug, imageUrl, price, inSto
         disabled={!inStock}
         className="btn-primary disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {!inStock ? 'Out of Stock' : added ? 'Added ✓' : 'Add to Cart'}
+        {!inStock ? 'Out of Stock' : added ? 'Added' : 'Add to Cart'}
       </button>
 
       {added && (

@@ -71,7 +71,7 @@ export default function CartPage() {
                   </div>
 
                   <div className="w-24 text-right font-display font-semibold">
-                    {item.price !== null ? `$${(item.price * item.quantity).toLocaleString()}` : '—'}
+                    {item.price !== null ? `$${(item.price * item.quantity).toLocaleString()}` : 'TBD'}
                   </div>
 
                   <button

@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, html, replyTo }: SendEmailInput) 
 
   if (!apiKey) {
     console.warn(
-      '[email] RESEND_API_KEY is not set — skipping email send. Set RESEND_API_KEY (and ideally EMAIL_FROM) in your environment to enable quote notification emails.'
+      '[email] RESEND_API_KEY is not set, skipping email send. Set RESEND_API_KEY (and ideally EMAIL_FROM) in your environment to enable quote notification emails.'
     );
     return { skipped: true as const };
   }

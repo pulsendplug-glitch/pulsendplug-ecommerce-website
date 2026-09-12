@@ -42,10 +42,19 @@ export function AdminPanel() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [loggingIn, setLoggingIn] = useState(false);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('pp_admin_key');
-    if (saved) { setKey(saved); setAuthed(true); }
+    if (!saved) return;
+    fetch('/api/admin-verify', { method: 'POST', headers: { 'x-admin-key': saved } }).then((res) => {
+      if (res.ok) {
+        setKey(saved);
+        setAuthed(true);
+      } else {
+        sessionStorage.removeItem('pp_admin_key');
+      }
+    });
   }, []);
 
   useEffect(() => { if (authed) loadAll(); }, [authed]);
@@ -70,15 +79,27 @@ export function AdminPanel() {
     }
   }
 
-  function tryLogin(e: React.FormEvent) {
+  async function tryLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!key.trim()) {
       setLoginError('Please enter a password.');
       return;
     }
     setLoginError('');
-    sessionStorage.setItem('pp_admin_key', key);
-    setAuthed(true);
+    setLoggingIn(true);
+    try {
+      const res = await fetch('/api/admin-verify', { method: 'POST', headers: { 'x-admin-key': key } });
+      if (!res.ok) {
+        setLoginError('Incorrect password.');
+        return;
+      }
+      sessionStorage.setItem('pp_admin_key', key);
+      setAuthed(true);
+    } catch {
+      setLoginError('Could not verify password right now. Please try again.');
+    } finally {
+      setLoggingIn(false);
+    }
   }
 
   async function handleUpload(file: File) {
@@ -213,10 +234,12 @@ export function AdminPanel() {
             onChange={(e) => setKey(e.target.value)}
             className="w-full rounded-xl border border-black/10 bg-transparent px-4 py-3 outline-none focus:border-pulse-red dark:border-white/15"
           />
-          <button type="submit" className="btn-primary w-full">Enter</button>
+          <button type="submit" disabled={loggingIn} className="btn-primary w-full">
+            {loggingIn ? 'Checking' : 'Enter'}
+          </button>
           {loginError && <p className="text-sm text-red-600">{loginError}</p>}
           <p className="text-xs text-black/50 dark:text-white/50">
-            This checks against the ADMIN_PASSWORD environment variable set in Vercel when you save or delete anything.
+            Your password is checked against the ADMIN_PASSWORD set in Vercel before this page unlocks.
           </p>
         </form>
       </div>
@@ -331,7 +354,7 @@ export function AdminPanel() {
                   <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="font-display font-semibold">
-                        #{o.requestNumber} — {o.name}
+                        #{o.requestNumber}, {o.name}
                       </p>
                       <p className="text-sm text-black/60 dark:text-white/60">
                         {o.email} · {o.phone} · {new Date(o.createdAt).toLocaleString()}

@@ -16,12 +16,25 @@ const categories = [
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: { category?: string };
+  searchParams: { category?: string; search?: string };
 }) {
   const activeCategory = searchParams.category;
+  const search = searchParams.search?.trim();
 
   const products = await prisma.product.findMany({
-    where: activeCategory ? { category: activeCategory } : {},
+    where: {
+      ...(activeCategory ? { category: activeCategory } : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { shortDesc: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+              { category: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -30,7 +43,9 @@ export default async function ShopPage({
       <section className="border-b border-black/5 bg-pulse-fog py-16 dark:border-white/10 dark:bg-pulse-charcoal">
         <div className="container-max section-pad">
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">Catalog</p>
-          <h1 className="font-display text-4xl font-bold">Shop Recovery &amp; Studio Equipment</h1>
+          <h1 className="font-display text-4xl font-bold">
+            {search ? `Results for "${search}"` : 'Shop Recovery & Studio Equipment'}
+          </h1>
         </div>
       </section>
 
@@ -67,9 +82,15 @@ export default async function ShopPage({
           <div>
             {products.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-black/10 p-16 text-center dark:border-white/15">
-                <p className="mb-2 font-display text-xl font-semibold">No products yet</p>
+                <p className="mb-2 font-display text-xl font-semibold">
+                  {search ? 'No matching products' : 'No products yet'}
+                </p>
                 <p className="text-sm text-black/60 dark:text-white/60">
-                  Add your first product from the <Link href="/admin" className="text-pulse-red underline">admin panel</Link>.
+                  {search ? (
+                    <>Try a different search term, or <Link href="/shop" className="text-pulse-red underline">browse everything</Link>.</>
+                  ) : (
+                    <>Add your first product from the <Link href="/admin" className="text-pulse-red underline">admin panel</Link>.</>
+                  )}
                 </p>
               </div>
             ) : (

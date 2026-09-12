@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { ProductCard } from '@/components/ProductCard';
 import { CountdownTimer } from '@/components/CountdownTimer';
-import { HeroTurntable } from '@/components/HeroTurntable';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,35 +52,25 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* HERO — fullscreen, scroll/drag-scrubbed 360deg chair turntable behind the copy */}
-      <section className="relative border-b border-black/5 dark:border-white/10">
-        <HeroTurntable>
-          <div className="container-max section-pad w-full text-white">
-            <div className="max-w-2xl animate-fadeUp">
-              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
-                Premium Wellness &amp; Recovery Equipment
-              </p>
-              <h1 className="mb-6 font-display text-4xl font-bold leading-tight md:text-6xl">
-                Don&apos;t Just Give Customers a Service.
-                <span className="text-pulse-red"> Give Them an Experience.</span>
-              </h1>
-              <p className="mb-8 max-w-xl text-lg text-white/80">
-                Pulse &amp; Plug supplies premium massage chairs, infrared saunas, cold plunge systems, and
-                recovery equipment to fitness studios, clinics, and wellness businesses that want to give
-                their clients something to look forward to.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/shop" className="btn-primary">Shop Equipment</Link>
-                <Link href="/contact" className="btn-outline">Request a Quote</Link>
-              </div>
-              <div className="mt-10 inline-flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-3 backdrop-blur-sm">
-                <p className="font-display text-2xl font-bold text-pulse-red">250+</p>
-                <p className="text-sm text-white/80">Businesses Equipped</p>
-              </div>
-            </div>
-          </div>
-        </HeroTurntable>
-      </section>
+      {/* HERO: fullscreen scroll and drag scrubbed 360 turntable */}
+      <HeroTurntable>
+        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pulse-red">
+          Premium Wellness &amp; Recovery Equipment
+        </p>
+        <h1 className="mb-6 max-w-4xl font-display text-4xl font-bold leading-tight text-white md:text-6xl">
+          Don&apos;t Just Give Customers a Service.
+          <span className="text-pulse-red"> Give Them an Experience.</span>
+        </h1>
+        <p className="mb-8 max-w-xl text-lg text-white/85">
+          Pulse &amp; Plug supplies premium massage chairs, infrared saunas, cold plunge systems, and
+          recovery equipment to fitness studios, clinics, and wellness businesses that want to give
+          their clients something to look forward to.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link href="/shop" className="btn-primary">Shop Equipment</Link>
+          <Link href="/contact" className="btn-outline border-white text-white hover:border-pulse-red">Request a Quote</Link>
+        </div>
+      </HeroTurntable>
 
       {/* VALUE PROPS STRIP */}
       <section className="border-b border-black/5 dark:border-white/10">

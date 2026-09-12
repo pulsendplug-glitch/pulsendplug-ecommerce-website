@@ -84,7 +84,7 @@ export function ProductCard({ product }: { product: Product }) {
           disabled={!product.inStock}
           className="w-full rounded-full border border-black/10 py-2 text-xs font-semibold uppercase tracking-wide transition-all hover:border-pulse-red hover:bg-pulse-red hover:text-white disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15"
         >
-          {!product.inStock ? 'Out of Stock' : added ? 'Added ✓' : 'Add to Cart'}
+          {!product.inStock ? 'Out of Stock' : added ? 'Added' : 'Add to Cart'}
         </button>
       </div>
     </div>
