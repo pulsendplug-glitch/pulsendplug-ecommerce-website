@@ -2,9 +2,8 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { isValidEmail, isValidPhone, EMAIL_ERROR, PHONE_ERROR } from '@/lib/validation';
 
-type Phase = 'checking' | 'newsletter' | 'heartbeat' | 'cookies' | 'done';
+type Phase = 'checking' | 'enter' | 'heartbeat' | 'newsletter' | 'cookies' | 'done';
 
 function playHeartbeat(ctx: AudioContext) {
   const now = ctx.currentTime;
@@ -32,6 +31,17 @@ function playHeartbeat(ctx: AudioContext) {
   }
 }
 
+function isValidEmail(email: string) {
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim());
+}
+
+function isValidPhone(phone: string) {
+  const trimmed = phone.trim();
+  if (!trimmed.startsWith('+')) return false;
+  const digitsOnly = trimmed.replace(/[^0-9]/g, '');
+  return digitsOnly.length >= 11;
+}
+
 export function SiteGate({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<Phase>('checking');
   const [form, setForm] = useState({ email: '', phone: '' });
@@ -53,11 +63,10 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
     const cookieChoice = localStorage.getItem('pp_cookie_consent');
     const introShown = sessionStorage.getItem('pp_intro_shown');
 
-    // Order: opening animation plays first (once per browser session), then
-    // the newsletter prompt (once ever, until they subscribe), then the
-    // cookie notice (once ever, until they choose).
     if (!introShown) {
-      setPhase('heartbeat');
+      // The heartbeat has sound, and browsers block audio until a real
+      // tap/click happens, so we ask for one tiny tap first.
+      setPhase('enter');
     } else if (!subscribed) {
       setPhase('newsletter');
     } else if (!cookieChoice) {
@@ -67,24 +76,26 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  function handleEnter() {
+    try {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new Ctx();
+    } catch {
+      audioCtxRef.current = null;
+    }
+    setPhase('heartbeat');
+  }
+
   useEffect(() => {
     if (phase !== 'heartbeat') return;
 
-    // Best-effort only: the animation now plays before any click has
-    // happened on the page, so browsers' autoplay policy will typically
-    // keep this AudioContext suspended (silent) on a first-ever visit.
-    // It's still worth attempting — some browsers allow it, and returning
-    // visitors who already interacted with the site once often get sound.
-    // The visual animation is unaffected either way.
-    try {
-      if (!audioCtxRef.current) {
-        const Ctx = window.AudioContext || (window as any).webkitAudioContext;
-        audioCtxRef.current = new Ctx();
+    if (audioCtxRef.current) {
+      try {
+        if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+        playHeartbeat(audioCtxRef.current);
+      } catch {
+        // Audio is a nice-to-have; if it fails, the visual animation still runs fine.
       }
-      if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
-      playHeartbeat(audioCtxRef.current);
-    } catch {
-      // Audio is a nice-to-have; if it fails, the visual animation still runs fine.
     }
 
     const timer = setTimeout(() => {
@@ -92,10 +103,10 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
       const subscribed = localStorage.getItem('pp_subscribed');
       if (!subscribed) {
         setPhase('newsletter');
-        return;
+      } else {
+        const cookieChoice = localStorage.getItem('pp_cookie_consent');
+        setPhase(cookieChoice ? 'done' : 'cookies');
       }
-      const cookieChoice = localStorage.getItem('pp_cookie_consent');
-      setPhase(cookieChoice ? 'done' : 'cookies');
     }, reducedMotion ? 900 : 2600);
     return () => clearTimeout(timer);
   }, [phase, reducedMotion]);
@@ -105,11 +116,11 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
     setError('');
 
     if (!isValidEmail(form.email)) {
-      setError(EMAIL_ERROR);
+      setError('Please enter a valid email address.');
       return;
     }
     if (!isValidPhone(form.phone)) {
-      setError(PHONE_ERROR);
+      setError('Please enter a valid phone number with country code (e.g. +1 786 406 6937), at least 11 digits.');
       return;
     }
 
@@ -141,53 +152,20 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
     return <div className="min-h-screen bg-pulse-black" />;
   }
 
-  if (phase === 'newsletter') {
+  if (phase === 'enter') {
     return (
-      <div className="fixed inset-0 z-[999] flex items-center justify-center bg-pulse-black p-6">
-        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-pulse-charcoal p-8 text-white">
-          <div className="mb-6 flex items-center gap-2 font-display text-xl font-bold">
-            <span className="relative h-10 w-10 flex-shrink-0">
-              <Image src="/logo-mark.png" alt="Pulse & Plug logo" fill className="object-contain" />
-            </span>
-            Pulse<span className="text-pulse-red">&amp;</span>Plug
-          </div>
-
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-pulse-red/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pulse-red">
-            <span aria-hidden="true">🔔</span> Notification
-          </div>
-          <h2 className="mb-2 font-display text-2xl font-bold">Subscribe to Our Newsletter</h2>
-          <p className="mb-6 text-sm text-white/60">
-            Enter your email and phone number (with country code) to get updates on new equipment and
-            offers before you continue.
-          </p>
-          <form onSubmit={handleSubscribe} className="space-y-4" noValidate>
-            <input
-              type="email"
-              required
-              placeholder="Email address"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 text-white outline-none focus:border-pulse-red"
-            />
-            <input
-              type="tel"
-              required
-              inputMode="tel"
-              placeholder="+1 5551234567"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 text-white outline-none focus:border-pulse-red"
-            />
-            <p className="text-xs text-white/40">
-              Phone must include a country code (starting with +) and at least 11 digits.
-            </p>
-            {error && <p className="text-sm text-red-400">{error}</p>}
-            <button type="submit" disabled={submitting} className="btn-primary w-full">
-              {submitting ? 'Submitting' : 'Subscribe & Continue'}
-            </button>
-          </form>
+      <button
+        onClick={handleEnter}
+        className="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-6 bg-pulse-black text-white"
+      >
+        <div className="relative h-14 w-14">
+          <Image src="/logo-mark.png" alt="Pulse & Plug logo" fill className="object-contain" priority />
         </div>
-      </div>
+        <p className="font-display text-xl font-bold tracking-widest">
+          PULSE<span className="text-pulse-red">&amp;</span>PLUG
+        </p>
+        <p className="text-sm text-white/50">Tap to enter</p>
+      </button>
     );
   }
 
@@ -245,31 +223,81 @@ export function SiteGate({ children }: { children: React.ReactNode }) {
     );
   }
 
+  if (phase === 'newsletter') {
+    return (
+      <div className="fixed inset-0 z-[999] flex items-center justify-center bg-pulse-black p-6">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-pulse-charcoal p-8 text-white">
+          <div className="mb-6 flex items-center gap-2 font-display text-xl font-bold">
+            <span className="relative h-10 w-10 flex-shrink-0">
+              <Image src="/logo-mark.png" alt="Pulse & Plug logo" fill className="object-contain" />
+            </span>
+            Pulse<span className="text-pulse-red">&amp;</span>Plug
+          </div>
+          <div className="mb-4 rounded-2xl border border-pulse-red/30 bg-pulse-red/10 px-4 py-3">
+            <p className="font-display font-semibold text-white">Subscribe to Our Newsletter</p>
+          </div>
+          <p className="mb-6 text-sm text-white/60">
+            Enter your email and phone number to get updates on new equipment and offers before you continue.
+          </p>
+          <form onSubmit={handleSubscribe} className="space-y-4">
+            <input
+              type="email"
+              required
+              placeholder="Email address"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 text-white outline-none focus:border-pulse-red"
+            />
+            <input
+              type="tel"
+              required
+              placeholder="Phone number with country code (e.g. +1 786 406 6937)"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 text-white outline-none focus:border-pulse-red"
+            />
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <button type="submit" disabled={submitting} className="btn-primary w-full">
+              {submitting ? 'Submitting' : 'Continue to Site'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   if (phase === 'cookies') {
     return (
       <div className="fixed inset-0 z-[999] bg-pulse-black">
-        <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-pulse-charcoal/70 p-5 text-white backdrop-blur-md md:p-6">
-          <div className="container-max flex flex-col items-center gap-4 md:flex-row md:justify-between">
-            <p className="text-center text-sm text-white/80 md:text-left">
-              <span className="font-semibold text-white">Cookies</span> — To improve user experience, this
-              site uses cookies.
-            </p>
-            <div className="flex w-full gap-3 md:w-auto">
+        <div className="cookie-slide-up absolute inset-x-0 bottom-0 border-t border-white/10 bg-pulse-charcoal/85 p-6 backdrop-blur-md sm:p-8">
+          <div className="container-max flex flex-col items-center justify-between gap-5 sm:flex-row">
+            <div>
+              <p className="mb-1 font-display text-lg font-bold text-white">Cookies</p>
+              <p className="text-sm text-white/70">To improve user experience, we use cookies on this site.</p>
+            </div>
+            <div className="flex flex-shrink-0 gap-3">
               <button
                 onClick={() => handleCookieChoice('declined')}
-                className="flex-1 rounded-full border border-white/25 px-6 py-2.5 text-sm font-medium text-white md:flex-none"
+                className="rounded-full border border-white/20 px-6 py-3 text-sm font-medium text-white"
               >
                 Reject
               </button>
               <button
                 onClick={() => handleCookieChoice('accepted')}
-                className="flex-1 rounded-full bg-pulse-red px-6 py-2.5 text-sm font-semibold text-white md:flex-none"
+                className="rounded-full bg-pulse-red px-6 py-3 text-sm font-semibold text-white"
               >
                 Accept
               </button>
             </div>
           </div>
         </div>
+        <style>{`
+          .cookie-slide-up { animation: cookieSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+          @keyframes cookieSlideUp {
+            0% { transform: translateY(100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
       </div>
     );
   }
