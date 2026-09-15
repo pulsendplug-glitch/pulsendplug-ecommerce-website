@@ -68,9 +68,6 @@ export function Header() {
             <span className="relative h-8 w-8 flex-shrink-0 sm:h-10 sm:w-10">
               <Image src="/logo-mark.png" alt="Pulse & Plug logo" fill className="object-contain" priority />
             </span>
-            <span className="hidden sm:inline">
-              Pulse<span className="text-pulse-red">&amp;</span>Plug
-            </span>
           </Link>
         </div>
 
@@ -137,7 +134,11 @@ export function Header() {
           >
             Cart {itemCount > 0 ? `(${itemCount})` : ''}
           </Link>
-          <Link href="/contact" onClick={() => setOpen(false)} className="btn-primary mt-3 w-full">
+          <Link
+            href="/contact"
+            onClick={() => setOpen(false)}
+            className="mt-3 inline-flex w-fit items-center justify-center rounded-full bg-pulse-red px-5 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-all hover:bg-pulse-redDark"
+          >
             Request a Quote
           </Link>
         </nav>
