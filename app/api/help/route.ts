@@ -14,11 +14,11 @@ Guide visitors around the site in short, friendly, plain answers. Here is the si
 Keep answers under four sentences unless the visitor asks for more detail. Do not invent products, prices, or features that were not described above.`;
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'The site helper is not configured yet. Add an ANTHROPIC_API_KEY environment variable to enable it.' },
+      { error: 'The site helper is not configured yet. Add a GEMINI_API_KEY environment variable to enable it.' },
       { status: 500 }
     );
   }
@@ -30,32 +30,32 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 400,
-        system: SYSTEM_PROMPT,
-        messages: messages.map((m: { role: string; content: string }) => ({
-          role: m.role,
-          content: m.content,
-        })),
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: messages.map((m: { role: string; content: string }) => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }],
+          })),
+          generationConfig: { maxOutputTokens: 400 },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('Anthropic API error:', errText);
+      console.error('Gemini API error:', errText);
       return NextResponse.json({ error: 'The site helper could not respond right now.' }, { status: 502 });
     }
 
     const data = await response.json();
-    const reply = data.content?.find((c: any) => c.type === 'text')?.text || 'Sorry, I could not find an answer to that.';
+    const reply =
+      data.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') ||
+      'Sorry, I could not find an answer to that.';
 
     return NextResponse.json({ reply });
   } catch (err) {
