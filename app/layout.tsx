@@ -2,12 +2,6 @@ import type { Metadata } from 'next';
 import { Space_Grotesk, Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { CursorGlow } from '@/components/CursorGlow';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { SiteGate } from '@/components/SiteGate';
-import { HelpWidget } from '@/components/HelpWidget';
-import { CartProvider } from '@/components/CartContext';
 
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', weight: ['500', '700'] });
 const body = Inter({ subsets: ['latin'], variable: '--font-body' });
@@ -23,20 +17,16 @@ export const metadata: Metadata = {
   },
 };
 
+// This root layout only carries things that must apply everywhere, including
+// the admin area: fonts and dark/light mode. Everything customer-facing
+// (header, footer, cart, the newsletter/cookie gate, the help widget) lives
+// in app/(site)/layout.tsx instead, so /admin never renders any of it.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${display.variable} ${body.variable} font-body`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <CartProvider>
-            <SiteGate>
-              <CursorGlow />
-              <Header />
-              <main>{children}</main>
-              <Footer />
-              <HelpWidget />
-            </SiteGate>
-          </CartProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>
